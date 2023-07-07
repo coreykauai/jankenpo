@@ -1,3 +1,9 @@
+const playerScore = document.querySelector(".player-score");
+const compScore = document.querySelector(".comp-score");
+const btns = document.querySelectorAll(".btn");
+const output = document.querySelector(".output");
+const gameBoard = document.querySelector(".game");
+
 const getComputerChoice = () => {
   const rando = Math.ceil(Math.random() * 3);
 
@@ -26,79 +32,63 @@ const getPlayerChoice = () => {
   }
   return playerChoice;
 };
+const updateOutput = (msg) => {
+  output.innerText = msg;
+};
 
 const playRound = (playerSelection, computerSelection) => {
   playerSelection = playerSelection.toLowerCase();
 
   const playerWins =
-    (playerSelection === "r" && computerSelection === "scissors") ||
-    (playerSelection === "s" && computerSelection === "paper") ||
-    (playerSelection === "p" && computerSelection === "rock");
+    (playerSelection === "rock" && computerSelection === "scissors") ||
+    (playerSelection === "scissors" && computerSelection === "paper") ||
+    (playerSelection === "paper" && computerSelection === "rock");
 
   const computerWins =
-    (computerSelection === "rock" && playerSelection === "s") ||
-    (computerSelection === "scissors" && playerSelection === "p") ||
-    (computerSelection === "paper" && playerSelection === "r");
+    (computerSelection === "rock" && playerSelection === "scissors") ||
+    (computerSelection === "scissors" && playerSelection === "paper") ||
+    (computerSelection === "paper" && playerSelection === "rock");
 
   const tieUp =
-    (computerSelection === "rock" && playerSelection === "r") ||
-    (computerSelection === "scissors" && playerSelection === "s") ||
-    (computerSelection === "paper" && playerSelection === "p");
+    (computerSelection === "rock" && playerSelection === "rock") ||
+    (computerSelection === "scissors" && playerSelection === "scissors") ||
+    (computerSelection === "paper" && playerSelection === "paper");
 
   if (playerWins) {
-    console.log(`You win! ${playerSelection} beats ${computerSelection}`);
-    alert("You win!");
+    updateOutput(`You win! ${playerSelection} beats ${computerSelection}`);
     return "player wins";
   } else if (computerWins) {
-    console.log(`You lose! ${computerSelection} beats ${playerSelection}`);
-    alert("looza");
+    updateOutput(`You lose! ${computerSelection} beats ${playerSelection}`);
     return "computer wins";
   } else if (tieUp) {
-    console.log(`${playerSelection} and ${computerSelection} It's a tie!`);
-    alert("tie-tie");
+    updateOutput(`${playerSelection} and ${computerSelection} It's a tie!`);
     return "tie";
-  } else {
-    return "try again";
+  }
+};
+let computerTotalWins = 0;
+let playerTotalWins = 0;
+
+const game = (evnt) => {
+  let computerChoice = getComputerChoice();
+  let playerChoice = evnt.target.dataset.type;
+
+  let outcome = playRound(playerChoice, computerChoice);
+  console.log(outcome);
+  if (outcome === "player wins") {
+    playerTotalWins++;
+    playerScore.innerText = playerTotalWins;
+  } else if (outcome === "computer wins") {
+    computerTotalWins++;
+    compScore.innerText = computerTotalWins;
+  }
+
+  if (playerTotalWins === 5) {
+    gameBoard.innerText = "You win the game! Refresh fo play again";
+  } else if (computerTotalWins === 5) {
+    gameBoard.innerText = "You lose the game! Refresh fo play again";
   }
 };
 
-const game = () => {
-  let roundCount = 1;
-  let computerTotalWins = 0;
-  let playerTotalWins = 0;
-  let ties = 0;
-
-  while (roundCount <= 5) {
-    let computerChoice = getComputerChoice();
-    let playerChoice = getPlayerChoice();
-
-    let outcome = playRound(playerChoice, computerChoice);
-    if (outcome === "player wins") {
-      playerTotalWins++;
-      roundCount++;
-    } else if (outcome === "computer wins") {
-      computerTotalWins++;
-      roundCount++;
-    } else if (outcome === "tie") {
-      ties++;
-      roundCount++;
-    } else {
-      alert("eh check da letta");
-      requestIdleCallback;
-    }
-
-    console.log(roundCount);
-  }
-
-  if (playerTotalWins > computerTotalWins) {
-    return alert("You win the game!");
-  } else if (computerTotalWins > playerTotalWins) {
-    return alert("You lose the game!");
-  } else {
-    return alert("The game is a tie! Go again", window.location.reload());
-  }
-};
-
-game();
-
-alert("try again", window.location.reload());
+btns.forEach((btn) => {
+  btn.addEventListener("click", game);
+});
